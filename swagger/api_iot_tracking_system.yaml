@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: IoT Tracking System API
+  version: 1.0.0
+  contact:
+    name: Supriya Shejale
+    email: supriyashejale@gmail.com
+  description: This API provides functionalities for managing and retrieving IoT device location data.
+
+servers:
+  - url: http://localhost:8081
+
+paths:
+
+  /iot/event/v1:
+    post:
+      summary: Batch load IoT device data from a CSV file.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filepath:
+                  type: string
+                  description: The path to the CSV file containing device data.
+      responses:
+        '200':
+          description: Successful data refresh.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                    description: "Data refreshed"
+        '404':
+          description: Data file not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                    description: "ERROR: no data file found"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                    description: "ERROR: A technical exception occurred."
+    get:
+      summary: Get device details and location for a given product ID.
+      parameters:
+        - name: ProductId
+          in: query
+          required: true
+          type: string
+          description: The product ID of the device.
+        - name: tstmp
+          in: query
+          type: string
+          description: (Optional) Timestamp for location lookup (in milliseconds since epoch).
+      responses:
+        '200':
+          description: Successful location retrieval.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Device ID.
+                  name:
+                    type: string
+                    description: Device name.
+                  datetime:
+                    type: string
+                    description: Date and time of location data in a user-friendly format.
+                  long:  # Corrected typo (longi -> long)
+                    type: string
+                    description: Longitude.
+                  lat:
+                    type: string
+                    description: Latitude.
+                  status:
+                    type: string
+                    description: Device status (Active, Inactive, N/A).
+                  battery:
+                    type: string
+                    description: Battery life level (Full, High, Medium, Low, Critical).
+                  description:
+                    type: string
+                    description: Additional message related to location or status.
+        '400':
+          description: Device location not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                    description: "ERROR: Device could not be located"
+        '404':
+          description: Product ID not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                    description: "ERROR: Id <insert productId> not found"
