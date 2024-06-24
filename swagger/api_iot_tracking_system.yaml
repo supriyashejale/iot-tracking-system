@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: IoT Tracking System API
-  version: 1.0.0
+  version: 1.1.0
   contact:
     name: Supriya Shejale
     email: supriyashejale@gmail.com
@@ -11,7 +11,6 @@ servers:
   - url: http://localhost:8081
 
 paths:
-
   /iot/event/v1:
     post:
       summary: Batch load IoT device data from a CSV file.
@@ -31,92 +30,99 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  description:
-                    type: string
-                    description: "Data refreshed"
+                $ref: '#/components/schemas/SuccessResponse'
         '404':
           description: Data file not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  description:
-                    type: string
-                    description: "ERROR: no data file found"
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  description:
-                    type: string
-                    description: "ERROR: A technical exception occurred."
+                $ref: '#/components/schemas/ErrorResponse'
+
     get:
       summary: Get device details and location for a given product ID.
       parameters:
-        - name: ProductId
+        - name: productId
           in: query
           required: true
-          type: string
           description: The product ID of the device.
+          schema:
+            type: string
         - name: tstmp
           in: query
-          type: string
+          required: false
           description: (Optional) Timestamp for location lookup (in milliseconds since epoch).
+          schema:
+            type: string
       responses:
         '200':
           description: Successful location retrieval.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: Device ID.
-                  name:
-                    type: string
-                    description: Device name.
-                  datetime:
-                    type: string
-                    description: Date and time of location data in a user-friendly format.
-                  long:  # Corrected typo (longi -> long)
-                    type: string
-                    description: Longitude.
-                  lat:
-                    type: string
-                    description: Latitude.
-                  status:
-                    type: string
-                    description: Device status (Active, Inactive, N/A).
-                  battery:
-                    type: string
-                    description: Battery life level (Full, High, Medium, Low, Critical).
-                  description:
-                    type: string
-                    description: Additional message related to location or status.
+                $ref: '#/components/schemas/DeviceLocationResponse'
         '400':
           description: Device location not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  description:
-                    type: string
-                    description: "ERROR: Device could not be located"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Product ID not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  description:
-                    type: string
-                    description: "ERROR: Id <insert productId> not found"
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Data refreshed"
+    ErrorResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "ERROR: no data file found"
+    DeviceLocationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Device ID.
+        name:
+          type: string
+          description: Device name.
+        datetime:
+          type: string
+          description: Date and time of location data in a user-friendly format.
+          example: "2023-06-24 14:52:30 UTC"
+        longi:
+          type: string
+          description: Longitude.
+          example: "-122.4194"
+        lat:
+          type: string
+          description: Latitude.
+          example: "37.7749"
+        status:
+          type: string
+          description: Device status (Active, Inactive, N/A).
+          example: "Active"
+        battery:
+          type: string
+          description: Battery life level (Full, High, Medium, Low, Critical).
+          example: "High"
+        description:
+          type: string
+          description: Additional message related to location or status.
+          example: "Device is operating normally."
