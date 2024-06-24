@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Product {
 
-    private Long DateTime;
+    private String DateTime;
     private Long EventId;
     private String ProductId;
     private String Latitude;

@@ -12,5 +12,5 @@ import java.io.IOException;
  */
 public interface DataProcessingService {
     FileDetailsResponseDTO iotBatchDataLoading(String fileDetails) throws IOException, TechnicalIssueException;
-    DeviceReportResponseDTO getDeviceAndLocationDetails(String productId, Long tstmp);
+    DeviceReportResponseDTO getDeviceAndLocationDetails(String productId, String tstmp);
 }

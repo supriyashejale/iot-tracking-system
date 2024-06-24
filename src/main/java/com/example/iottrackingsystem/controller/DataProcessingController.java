@@ -5,7 +5,6 @@ import com.example.iottrackingsystem.dto.FileDetailsRequestDTO;
 import com.example.iottrackingsystem.dto.FileDetailsResponseDTO;
 import com.example.iottrackingsystem.exception.InvalidInputException;
 import com.example.iottrackingsystem.service.DataProcessingService;
-import com.example.iottrackingsystem.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,12 +44,13 @@ public class DataProcessingController {
      */
     @GetMapping("/iot/event/v1")
     public ResponseEntity<DeviceReportResponseDTO> getDeviceAndLocationDetails(@RequestParam(value = "productId") String productId,
-                                                                               @RequestParam(value = "tstmp", required = false) Long tstmp) {
+                                                                               @RequestParam(value = "tstmp", required = false) String tstmp) {
+        logger.info("Received request to get details by timestamp: {} and device id: {}", tstmp, productId);
         //if productId parameter is null throw exception InvalidInputException
         String id = Optional.of(productId)
                 .filter(Predicate.not((String::isBlank)))
                 .orElseThrow(()->new InvalidInputException("Error: Invalid Input parameter productId"));
-        logger.info("Received request to get details by timestamp {} and device id: {}", Utils.convertToUTCDatetime(tstmp.toString()), productId);
+
         DeviceReportResponseDTO response = dataProcessingService.getDeviceAndLocationDetails(id, tstmp);
         logger.info("Successfully loaded details by location and device id: {} : {}","200", productId);
         return ResponseEntity.ok().body(response);

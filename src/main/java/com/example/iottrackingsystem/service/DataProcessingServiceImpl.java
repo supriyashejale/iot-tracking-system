@@ -4,7 +4,8 @@ import com.example.iottrackingsystem.dto.DeviceReportResponseDTO;
 import com.example.iottrackingsystem.dto.FileDetailsResponseDTO;
 import com.example.iottrackingsystem.exception.DataNotFoundException;
 import com.example.iottrackingsystem.repository.ProductDetailsRepository;
-import com.example.iottrackingsystem.util.Utils;
+import com.example.iottrackingsystem.common.util.DateUtil;
+import io.micrometer.common.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +44,18 @@ public class DataProcessingServiceImpl implements DataProcessingService {
      * @return DeviceReportResponseDTO
      */
     @Override
-    public DeviceReportResponseDTO getDeviceAndLocationDetails(String productId, Long tstmp) {
-
+    public DeviceReportResponseDTO getDeviceAndLocationDetails(String productId, String tstmp) {
 
         // If no timestamp parameter is provided, default to the current UTC time
-        Long timestamp = Optional.ofNullable(tstmp).orElse(Utils.getCurrentDatetimeUTCFormatToMilliseconds());
-        logger.info("Sarching records for ProductId : "+ productId +"  Timestamp : "+Utils.convertToUTCDatetime(timestamp.toString()));
+        String timestamp = tstmp;
+        if(StringUtils.isEmpty(timestamp)){
+            timestamp = DateUtil.getCurrentDatetimeUTC();
+        }else{
+            timestamp = DateUtil.ConvertMillisToUTC(tstmp);
+        }
+        logger.info("Searching records for ProductId : "+ productId +"  Timestamp : "+timestamp );
 
-//        DeviceReportResponseDTO details = productDetailsRepository.getDeviceAndLocationDetails(productId, timestamp);
         //	If the user provides an Id that is not present in the csv file then a 404 should result:(ID not found)
-
-//        if (details == null) {
-//            throw new DataNotFoundException("ERROR: Id " + productId + "  not found");
-//        }
         return  Optional.ofNullable(productDetailsRepository.getDeviceAndLocationDetails(productId, timestamp))
                 .orElseThrow(() -> new DataNotFoundException("ERROR: Id " + productId + "  not found"));
     }
