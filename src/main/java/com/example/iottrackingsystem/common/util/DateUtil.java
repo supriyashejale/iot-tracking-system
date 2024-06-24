@@ -48,20 +48,20 @@ public class DateUtil {
     public static String compareDate(String dateTimeStr1,String dateTimeStr2){
         // Define the custom formatter matching the date-time strings
         DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern(Constant.DATE_FORMAT)
-                .withZone(ZoneId.of("UTC"));
+                .withZone(ZoneId.of(Constant.DATETIME_ZONE_UTC));
 
         // Parse the date-time strings into ZonedDateTime objects
         ZonedDateTime dateTime1 = ZonedDateTime.parse(dateTimeStr1, customFormatter);
         ZonedDateTime dateTime2 = ZonedDateTime.parse(dateTimeStr2, customFormatter);
         // Compare the date-time objects
         if (dateTime1.isBefore(dateTime2)) {
-            System.out.println(dateTimeStr1 + " is before " + dateTimeStr2);
+            logger.debug(dateTimeStr1 + " is before " + dateTimeStr2);
             return "BEFORE";
         } else if (dateTime1.isAfter(dateTime2)) {
-            System.out.println(dateTimeStr1 + " is after " + dateTimeStr2);
+            logger.debug(dateTimeStr1 + " is after " + dateTimeStr2);
             return "AFTER";
         } else {
-            System.out.println(dateTimeStr1 + " is equal to " + dateTimeStr2);
+            logger.debug(dateTimeStr1 + " is equal to " + dateTimeStr2);
             return "EQUAL";
         }
 

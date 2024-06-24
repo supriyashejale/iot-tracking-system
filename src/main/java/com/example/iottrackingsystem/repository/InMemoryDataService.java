@@ -36,7 +36,7 @@ public class InMemoryDataService implements IDataService {
                         DateUtil.compareDate(value.getDateTime(), tstmp).equals("EQUAL")))
                 .findFirst();
 
-        logger.info("" + exactMatchedDetails);
+        logger.debug("Sorted data" + exactMatchedDetails);
 
         //Check no data available for specified data time
         Product closeToDateProduce = exactMatchedDetails.orElseGet(() -> {
