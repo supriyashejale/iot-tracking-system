@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
- * @interface DataProcessingServiceImpl
  * @author Supriya Shejale : 19/06/2024
+ * @Class DataProcessingServiceImpl
  */
 @Service
 public class DataProcessingServiceImpl implements DataProcessingService {
@@ -26,7 +26,6 @@ public class DataProcessingServiceImpl implements DataProcessingService {
     ProductDetailsRepository productDetailsRepository;
 
     /**
-     *
      * @param fileDetails
      * @return FileDetailsResponseDTO
      * @throws IOException
@@ -38,7 +37,6 @@ public class DataProcessingServiceImpl implements DataProcessingService {
     }
 
     /**
-     *
      * @param productId
      * @param tstmp
      * @return DeviceReportResponseDTO
@@ -48,15 +46,15 @@ public class DataProcessingServiceImpl implements DataProcessingService {
 
         // If no timestamp parameter is provided, default to the current UTC time
         String timestamp = tstmp;
-        if(StringUtils.isEmpty(timestamp)){
+        if (StringUtils.isEmpty(timestamp)) {
             timestamp = DateUtil.getCurrentDatetimeUTC();
-        }else{
+        } else {
             timestamp = DateUtil.ConvertMillisToUTC(tstmp);
         }
-        logger.info("Searching records for ProductId : "+ productId +"  Timestamp : "+timestamp );
+        logger.info("Searching records for ProductId : " + productId + "  Timestamp : " + timestamp);
 
         //	If the user provides an Id that is not present in the csv file then a 404 should result:(ID not found)
-        return  Optional.ofNullable(productDetailsRepository.getDeviceAndLocationDetails(productId, timestamp))
+        return Optional.ofNullable(productDetailsRepository.getDeviceAndLocationDetails(productId, timestamp))
                 .orElseThrow(() -> new DataNotFoundException("ERROR: Id " + productId + "  not found"));
     }
 }

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Supriya Shejale : 19/06/2024
- * @interface ProductDetailsRepositoryImpl
+ * @Class ProductDetailsRepositoryImpl
  */
 @Repository
 public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
@@ -53,7 +53,6 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
                     .map(line -> Arrays.asList(line.split(",")))
                     .collect(Collectors.toList());
 
-//            productListModel = new ProductListModel();
             productList = new ArrayList<>();
             for (int i = 1; i < records.size(); i++) {
                 Product product = new Product();
@@ -68,7 +67,6 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
                 product.setLight(records.get(i).get(6));
                 product.setAirplaneMode(records.get(i).get(7));
 
-//                String key = product.getDateTime()+product.getProductId();
                 String key = product.getEventId().toString();
                 dataService.saveProject(key, product);
                 productList.add(product);
@@ -79,78 +77,12 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
             throw new TechnicalIssueException("ERROR: A technical exception occurred");
         }
 
-//            records.stream().flatMap(List::stream).forEach(System.out::println);
-//            records .stream().forEach((x) -> x.stream().forEach(System.out::println));
         FileDetailsResponseDTO responseFileDetailsDTO = new FileDetailsResponseDTO();
         if (productList.size() > 0) {
             logger.info("Finished loading data.....");
             responseFileDetailsDTO.setDescription("data refreshed");
         }
 
-       /* InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileDetails);
-        BufferedReader csvReader = new BufferedReader(new InputStreamReader(inputStream));
-        String row;
-        ProductListModel productListModel = new ProductListModel();
-        List<Product> productsModules = new ArrayList<>();
-        try {
-            while ((row = csvReader.readLine()) != null) {
-                String[] data = row.split(",");
-                Product product = new Product();
-                if (data.length > 0)
-                    product.setDateTime(Long.valueOf(data[0]));
-                if (data.length > 1)
-                    product.setEventId(Integer.valueOf(data[1]));
-                if (data.length > 2)
-                    product.setProductId(data[2]);
-                if (data.length > 3)
-                    product.setLatitude(Double.valueOf(data[3]));
-                if (data.length > 4)
-                    product.setLongitude(Double.valueOf(data[4]));
-                if (data.length > 5) {
-                    product.setBattery(Double.valueOf(data[5]));
-                }
-                if (data.length > 6) {
-                    product.setLight(data[6]);
-                }
-                if (data.length > 7) {
-                    product.setAirplaneMode(data[6]);
-                }
-                productsModules.add(product);
-                System.out.println(productsModules);
-            }
-            csvReader.close();
-        } catch (IOException e) {
-
-            //logger.error("error :" + e.getMessage());
-            return null;
-        } finally {
-            if (csvReader != null) {
-
-                try {
-                    csvReader.close();
-                } catch (IOException e) {
-                    //logger.error("error :" + e.getMessage());
-                }
-            }
-
-        }
-        productListModel.setProducts(productsModules);*/
-
-
-
-       /* try(ICsvBeanReader beanReader
-                    = new CsvBeanReader(new FileReader(fileDetails), CsvPreference.STANDARD_PREFERENCE))
-        {
-            // the header elements are used to map the values to the bean
-            final String[] headers = beanReader.getHeader(true);
-            //final String[] headers = new String[]{"CustomerId","CustomerName","Country","PinCode","Email"};
-            final CellProcessor[] processors = getProcessors();
-            Product product;
-            while ((product = beanReader.read(Product.class, headers, processors)) != null) {
-                System.out.println(product);
-
-            }
-        }*/
         return responseFileDetailsDTO;
     }
 
@@ -225,26 +157,6 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
             responseDTO.setBattery(Constant.BATTERY_CRITICAL);
 
         return responseDTO;
-    }
-
-    /**
-     * Sets up the processors used for the examples.
-     */
-    private static CellProcessor[] getProcessors() {
-        final String emailRegex = "[a-z0-9\\._]+@[a-z0-9\\.]+";
-        StrRegEx.registerMessage(emailRegex, "must be a valid email address");
-
-        final CellProcessor[] processors = new CellProcessor[]{
-                new NotNull(), // dateTime
-                new NotNull(), // eventId
-                new NotNull(), // productId
-                new NotNull(), // latitude
-                new NotNull(), // Longitude
-                new NotNull(), // battery
-                new NotNull(), // light
-                new NotNull(), // airplaneMode
-        };
-        return processors;
     }
 
 }

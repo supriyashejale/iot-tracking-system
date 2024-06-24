@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Supriya Shejale : 19/06/2024
- * @interface ProductDetailsRepository
+ * @Class InMemoryDataService
  * @Description This class provides an in-memory data store using a HashMap.
  * It offers methods to save data (saveData) and retrieve data by ID (getDataById).
  */

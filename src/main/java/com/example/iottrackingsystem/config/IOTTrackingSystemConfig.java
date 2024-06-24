@@ -13,49 +13,5 @@ import org.springframework.context.annotation.Profile;
  */
 
 @Configuration
-@Profile("dev")
 public class IOTTrackingSystemConfig {
-
-//    @Autowired
-//    private RestTemplateBuilder builder;
-//
-//    @Autowired
-//    RestTemplate restTemplate;
-//
-//    @Value("${keycloak.username}")
-//    String uiBEUsername;
-//
-//    @Value("${keycloak.password}")
-//    String uiBEPassword;
-//
-//    @Value("${keycloak.tokenUrl}")
-//    String uiBEAuthUrl;
-//
-//    @Value("${keycloak.grantType}")
-//    String grantType;
-//
-//    @Value("${keycloak.clientId}")
-//    String clientId;
-//
-//    @Value("${ui.be.getDaqs}")
-//    String uiBEDaqsUrl;
-//
-//    @Value("${registry.command.version}")
-//    String version;
-
-//    public IOTTrackingSystemConfig() {
-//        setProperties();
-//    }
-//	static final Logger logger = LogManager.getLogger(IOTTrackingSystemConfig.class);
-//
-//
-//    /*
-//    * Set properties value and version for further uibe and authentication api access process
-//    * @return void
-//    *
-//    * */
-//    public void setProperties(){
-//        new UIBEDaqsService(restTemplate, uiBEDaqsUrl,  uiBEAuthUrl, uiBEPassword, uiBEUsername,grantType,clientId);
-//        new DaqsRequestApiService(version);
-//    }
 }

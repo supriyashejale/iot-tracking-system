@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Profile;
 
 /**
  * This is the main Spring Boot application class that bootstraps the application
+ * @author Supriya Shejale : 19/06/2024
+ * @version 1.1.0
  */
 @Profile("dev")
 @SpringBootApplication
