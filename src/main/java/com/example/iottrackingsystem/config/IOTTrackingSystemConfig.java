@@ -21,6 +21,7 @@ public class IOTTrackingSystemConfig implements WebMvcConfigurer {
     @Value("${server.port}")
     String serverport;
 
+    //try to solve cors issue for swagger file
     String url = "http://localhost:8081";//+ serveport;
 
     @Override
