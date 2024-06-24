@@ -29,6 +29,7 @@ import java.util.function.Predicate;
  */
 
 @RestController
+@CrossOrigin(origins = "http://localhost:8081", methods = {RequestMethod.GET, RequestMethod.POST})
 public class DataProcessingController {
 
     static final Logger logger = LogManager.getLogger(DataProcessingController.class.getCanonicalName());

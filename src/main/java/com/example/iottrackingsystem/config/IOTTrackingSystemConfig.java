@@ -1,7 +1,10 @@
 package com.example.iottrackingsystem.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * <h1> Class: IOTTrackingSystemConfig
@@ -13,5 +16,20 @@ import org.springframework.context.annotation.Profile;
  */
 
 @Configuration
-public class IOTTrackingSystemConfig {
+public class IOTTrackingSystemConfig implements WebMvcConfigurer {
+
+    @Value("${server.port}")
+    String serverport;
+
+    String url = "http://localhost:8081";//+ serveport;
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins(url) // Adjust this as needed
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+
 }

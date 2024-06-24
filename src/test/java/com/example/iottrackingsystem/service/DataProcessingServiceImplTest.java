@@ -1,80 +1,87 @@
 package com.example.iottrackingsystem.service;
 
-//import static org.junit.Assert.assertEquals;
-//import static org.junit.Assert.assertNotNull;
-//import static org.junit.Assert.assertThrows;
-//import static org.mockito.Mockito.any;
-//import static org.mockito.Mockito.mock;
-//import static org.mockito.Mockito.when;
-//
-//import com.example.iottrackingsystem.dto.DeviceReportResponseDTO;
-//import com.example.iottrackingsystem.dto.FileDetailsResponseDTO;
-//import com.example.iottrackingsystem.exception.DataNotFoundException;
-//import com.example.iottrackingsystem.repository.ProductDetailsRepository;
-//import com.example.iottrackingsystem.service.DataProcessingService;
-//import com.example.iottrackingsystem.util.IotTrackingSystemConstants;
-//import com.example.iottrackingsystem.util.Utils;
-//
-//import org.junit.Before;
-//import org.junit.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
+import com.example.iottrackingsystem.common.util.DateUtil;
+import com.example.iottrackingsystem.dto.DeviceReportResponseDTO;
+import com.example.iottrackingsystem.dto.FileDetailsResponseDTO;
+import com.example.iottrackingsystem.exception.DataNotFoundException;
+import com.example.iottrackingsystem.repository.ProductDetailsRepository;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.IOException;
+
+@ExtendWith(MockitoExtension.class)
 public class DataProcessingServiceImplTest {
 
-  /*  @InjectMocks
-    private DataProcessingService dataProcessingService;
+    @InjectMocks
+    private DataProcessingServiceImpl dataProcessingService;
 
     @Mock
     private ProductDetailsRepository productDetailsRepository;
 
-    @Mock
-    private Utils utils;
-
-    @Before
-    public void init() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
     public void testIotBatchDataLoading_Success() throws IOException {
-        String filePath = "valid/filepath";
+        String fileDetails = "path/to/file.txt";
         FileDetailsResponseDTO expectedResponse = new FileDetailsResponseDTO();
-        when(productDetailsRepository.iotBatchDataLoading(filePath)).thenReturn(expectedResponse);
 
-        FileDetailsResponseDTO response = dataProcessingService.iotBatchDataLoading(filePath);
+        // Mock behavior of productDetailsRepository
+        Mockito.when(productDetailsRepository.iotBatchDataLoading(fileDetails)).thenReturn(expectedResponse);
 
-        assertNotNull(response);
-        assertEquals(expectedResponse, response);
+        // Call the service method
+        FileDetailsResponseDTO response = dataProcessingService.iotBatchDataLoading(fileDetails);
+
+        // Verify results
+        Assertions.assertEquals(expectedResponse, response);
     }
 
     @Test
     public void testGetDeviceAndLocationDetails_Success() {
-        String productId = "validProductId";
-        String currentDateTime = "currentDateTime";
+        String productId = "1234";
+        String timestamp = "1582605137000";  // Example UTC timestamp
         DeviceReportResponseDTO expectedResponse = new DeviceReportResponseDTO();
-        when(utils.getCurrentDatetimeUTCFormat()).thenReturn(currentDateTime);
-        when(productDetailsRepository.getDeviceAndLocationDetails(productId, currentDateTime)).thenReturn(expectedResponse);
 
+        // Mock behavior of productDetailsRepository
+        Mockito.when(productDetailsRepository.getDeviceAndLocationDetails(productId, timestamp)).thenReturn(expectedResponse);
+
+        // Call the service method
+        DeviceReportResponseDTO response = dataProcessingService.getDeviceAndLocationDetails(productId, timestamp);
+
+        // Verify results
+        Assertions.assertEquals(expectedResponse, response);
+    }
+
+    @Test
+    public void testGetDeviceAndLocationDetails_EmptyTimestamp_UsesCurrentUTC() {
+        String productId = "1234";
+        DeviceReportResponseDTO expectedResponse = new DeviceReportResponseDTO();
+
+        // Mock behavior of productDetailsRepository (assuming it uses Mockito inline)
+        Mockito.when(productDetailsRepository.getDeviceAndLocationDetails(any(), eq(DateUtil.getCurrentDatetimeUTC()))).thenReturn(expectedResponse);
+
+        // Call the service method with empty timestamp
         DeviceReportResponseDTO response = dataProcessingService.getDeviceAndLocationDetails(productId, null);
 
-        assertNotNull(response);
-        assertEquals(expectedResponse, response);
+        // Verify results
+        Assertions.assertEquals(expectedResponse, response);
     }
 
-    @Test
-    public void testGetDeviceAndLocationDetails_EmptyProductId() {
-        assertThrows(DataNotFoundException.class, () -> dataProcessingService.getDeviceAndLocationDetails("", null));
-    }
-
-    @Test
-    public void testGetDeviceAndLocationDetails_ProductIdNotFound() {
-        String productId = "invalidProductId";
-        String currentDateTime = "currentDateTime";
-        when(utils.getCurrentDatetimeUTCFormat()).thenReturn(currentDateTime);
-        when(productDetailsRepository.getDeviceAndLocationDetails(productId, currentDateTime)).thenReturn(null);
-
-        assertThrows(DataNotFoundException.class, () -> dataProcessingService.getDeviceAndLocationDetails(productId, null));
-    }*/
+//    @Test(expected = DataNotFoundException.class)
+//    public void testGetDeviceAndLocationDetails_NotFound() {
+//        String productId = "9999";
+//        String timestamp = "2024-06-25T00:00:00.000Z";
+//
+//        // Mock behavior of productDetailsRepository to return null
+//        Mockito.when(productDetailsRepository.getDeviceAndLocationDetails(productId, timestamp)).thenReturn(null);
+//
+//        // Call the service method (expecting DataNotFoundException)
+//        dataProcessingService.getDeviceAndLocationDetails(productId, timestamp);
+//    }
 }
