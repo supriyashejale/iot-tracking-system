@@ -1,5 +1,6 @@
 package com.iottrackingsystem.repository;
 
+import com.iottrackingsystem.dto.DeviceData;
 import com.iottrackingsystem.dto.DeviceReportResponseDTO;
 import com.iottrackingsystem.dto.Product;
 import com.iottrackingsystem.dto.FileDetailsResponseDTO;
@@ -36,9 +37,9 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
         List<List<String>> records;
         List<Product> productList;
         //the data completely replace the existing data with the contents every time
-        if (!IDataService.checkMemoryHasDetails(dataService.dataMap)) {
+        if (!IDataService.checkMemoryHasDetails(dataService.getDataMap())) {
             logger.info("In Memory is cleared before insert new details. ");
-            IDataService.cleanMemory(dataService.dataMap);
+            IDataService.cleanMemory(dataService.getDataMap());
         }
         logger.info("Started loading data.....");
         /**
@@ -76,6 +77,20 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
 
         FileDetailsResponseDTO responseFileDetailsDTO = new FileDetailsResponseDTO();
         if (productList.size() > 0) {
+            Map<String, List<Product>> filteredProductMap = productList.stream()
+                            .sorted(Comparator.comparing(Product::getProductId)
+                                    .thenComparing(Product::getDateTime).reversed())
+                            .collect(Collectors.groupingBy(Product::getProductId,
+                                    Collectors.collectingAndThen(Collectors.toList(),
+                                            list -> list.stream().limit(3)
+                                                    .collect(Collectors.toList()))));
+
+            logger.info("Filtered product map:");
+            filteredProductMap.forEach((productId, products) -> {
+                logger.info("Product ID: " + productId);
+                products.forEach(System.out::println);
+            });
+            dataService.setDeviceDataMap(DeviceData.convertProductMapToDeviceDataMap(filteredProductMap));
             logger.info("Finished loading data.....");
             responseFileDetailsDTO.setDescription("data refreshed");
         }
@@ -91,18 +106,9 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
 
         logger.info("Product details received from in memory : " + product);
         responseDTO.setId(product.getProductId());
-
-        /**
-         * - Differentiate between products: The two supported products are:
-         * 	CyclePlusTracker (product ID starts with 'WG') is used on bicycles.
-         * 	GeneralTracker (product ID starts with '69').
-         */
-        if (product.getProductId().startsWith("WG"))
-            responseDTO.setName("CyclePlusTracker");
-        else if (product.getProductId().startsWith("69")) {
-            responseDTO.setName("GeneralTracker");
-        }
         responseDTO.setDatetime(product.getDateTime());
+        responseDTO.setBattery(product.getBattery());
+        responseDTO.setName(product.getName());
 
         /**
          * -Set status flag:
@@ -114,44 +120,83 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
          * 	If airplane mode is on, the GPS data will not be available. The response should still be 200 OK and include the description "SUCCESS: Location not available: Please turn off airplane mode." Provide other details about the product, with latitude and longitude left blank.
          * 	If airplane mode is off, provide the GPS data and a 200 OK response with a success message.
          */
-        if (product.getAirplaneMode().toUpperCase().equals("OFF")) {
-            //	If the AirplaneMode is off and there is no GPS data available in the csv file the status should be 400:BAD_REQUEST
-            Optional.of(product.getLongitude())
-                    .filter(Predicate.not((String::isBlank)))
-                    .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
-            Optional.of(product.getLatitude())
-                    .filter(Predicate.not((String::isBlank)))
-                    .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
 
-            responseDTO.setLongi(product.getLongitude());
-            responseDTO.setLat(product.getLatitude());
-            responseDTO.setDescription("SUCCESS: Location identified.");
-            responseDTO.setStatus(Constant.FLAG_ACTIVE);
+        // Update status based on activity tracking logic
+        DeviceData data = dataService.getDeviceDataMap().get(product.getProductId());
+        if(product.getProductId().equals(data.getProductId())){
+            if (data.getProductId().startsWith("WG")) {
+                // Check for CyclePlusTracker
+                if (data.hasIdenticalLastCoordinates() && product.getAirplaneMode().toUpperCase().equals("ON")) {
+                    responseDTO.setDescription("SUCCESS: Location not available: Please turn off airplane mode.");
+                    responseDTO.setStatus(Constant.FLAG_INACTIVE);
+                } else {
+                    //	If the AirplaneMode is off and there is no GPS data available in the csv file the status should be 400:BAD_REQUEST
+                    Optional.of(product.getLongitude())
+                            .filter(Predicate.not((String::isBlank)))
+                            .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
+                    Optional.of(product.getLatitude())
+                            .filter(Predicate.not((String::isBlank)))
+                            .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
 
-        } else {
-            responseDTO.setDescription("SUCCESS: Location not available: Please turn off airplane mode.");
-            responseDTO.setStatus(Constant.FLAG_INACTIVE);
+                    responseDTO.setLongi(product.getLongitude());
+                    responseDTO.setLat(product.getLatitude());
+                    responseDTO.setDescription("SUCCESS: Location identified.");
+                    responseDTO.setStatus(Constant.FLAG_ACTIVE);
+                }
+
+//                data.updateLastReadings(data.getLatitude(), data.getLongitude());  // Update last readings
+            } else {
+                // Existing logic for GeneralTracker
+                if (product.getAirplaneMode().toUpperCase().equals("OFF")) {
+                    //	If the AirplaneMode is off and there is no GPS data available in the csv file the status should be 400:BAD_REQUEST
+                    Optional.of(product.getLongitude())
+                            .filter(Predicate.not((String::isBlank)))
+                            .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
+                    Optional.of(product.getLatitude())
+                            .filter(Predicate.not((String::isBlank)))
+                            .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
+
+                    responseDTO.setLongi(product.getLongitude());
+                    responseDTO.setLat(product.getLatitude());
+                    responseDTO.setDescription("SUCCESS: Location identified.");
+                    responseDTO.setStatus(Constant.FLAG_ACTIVE);
+
+                } else {
+                    responseDTO.setDescription("SUCCESS: Location not available: Please turn off airplane mode.");
+                    responseDTO.setStatus(Constant.FLAG_INACTIVE);
+                }
+
+            }
+
         }
 
-        /**
-         * 	Report battery life: Report battery life as:
-         * 	'Full' if it is ≥98%.
-         * 	'High' if it is ≥60%.
-         * 	'Medium' if it is ≥40%.
-         * 	'Low' if it is ≥10%.
-         * 	'Critical' if it is <10%.
-         */
-        Double batteryLife = product.getBattery();
-        if (batteryLife >= 98)
-            responseDTO.setBattery(Constant.BATTERY_FULL);
-        else if (batteryLife >= 60 && batteryLife < 98)
-            responseDTO.setBattery(Constant.BATTERY_HIGH);
-        else if (batteryLife >= 40 && batteryLife < 60)
-            responseDTO.setBattery(Constant.BATTERY_MEDIUM);
-        else if (batteryLife >= 10 && batteryLife < 40)
-            responseDTO.setBattery(Constant.BATTERY_LOW);
-        else if (batteryLife < 10)
-            responseDTO.setBattery(Constant.BATTERY_CRITICAL);
+
+/**
+ * Old logic
+ */
+//        if (product.getAirplaneMode().toUpperCase().equals("OFF")) {
+//            //	If the AirplaneMode is off and there is no GPS data available in the csv file the status should be 400:BAD_REQUEST
+//            Optional.of(product.getLongitude())
+//                    .filter(Predicate.not((String::isBlank)))
+//                    .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
+//            Optional.of(product.getLatitude())
+//                    .filter(Predicate.not((String::isBlank)))
+//                    .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
+//
+//            responseDTO.setLongi(product.getLongitude());
+//            responseDTO.setLat(product.getLatitude());
+//            responseDTO.setDescription("SUCCESS: Location identified.");
+//            responseDTO.setStatus(Constant.FLAG_ACTIVE);
+//
+//        } else {
+//            responseDTO.setDescription("SUCCESS: Location not available: Please turn off airplane mode.");
+//            responseDTO.setStatus(Constant.FLAG_INACTIVE);
+//        }
+//
+
+
+
+
 
         return responseDTO;
     }

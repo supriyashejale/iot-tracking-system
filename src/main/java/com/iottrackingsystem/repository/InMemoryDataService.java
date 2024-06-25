@@ -1,5 +1,6 @@
 package com.iottrackingsystem.repository;
 
+import com.iottrackingsystem.dto.DeviceData;
 import com.iottrackingsystem.dto.Product;
 import com.iottrackingsystem.exception.DataNotFoundException;
 import com.iottrackingsystem.common.util.DateUtil;
@@ -8,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Supriya Shejale : 19/06/2024
@@ -19,7 +21,8 @@ import java.util.*;
 public class InMemoryDataService implements IDataService {
 
     static final Logger logger = LogManager.getLogger(InMemoryDataService.class.getCanonicalName());
-    public Map<String, Product> dataMap = new HashMap<>();
+    private Map<String, Product> dataMap = new HashMap<>();
+    private Map<String, DeviceData> deviceDataMap = new ConcurrentHashMap<>();
 
     public Product getProductDetails(String productId, String tstmp) {
 
@@ -72,6 +75,18 @@ public class InMemoryDataService implements IDataService {
         logger.info("Save details {} = {} ", id, data);
         dataMap.put(id, data);
 
+    }
+
+    public Map<String, DeviceData> getDeviceDataMap() {
+        return deviceDataMap;
+    }
+
+    public void setDeviceDataMap(Map<String, DeviceData> deviceDataMap) {
+        this.deviceDataMap = deviceDataMap;
+    }
+
+    public Map<String, Product> getDataMap() {
+        return dataMap;
     }
 
 }
