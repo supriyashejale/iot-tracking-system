@@ -24,6 +24,6 @@ public class Constant {
     public static final String FLAG_ACTIVE = "Active";
     public static final String FLAG_INACTIVE = "Inactive";
 
-    public static final String FLAF_NA = "N/A";
+    public static final String FLAG_NA = "N/A";
 
 }

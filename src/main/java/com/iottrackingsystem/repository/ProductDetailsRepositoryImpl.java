@@ -75,6 +75,7 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
             throw new TechnicalIssueException("ERROR: A technical exception occurred");
         }
 
+        // Group by product ID and filter top 3 records
         FileDetailsResponseDTO responseFileDetailsDTO = new FileDetailsResponseDTO();
         if (productList.size() > 0) {
             Map<String, List<Product>> filteredProductMap = productList.stream()
@@ -126,7 +127,9 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
         if(product.getProductId().equals(data.getProductId())){
             if (data.getProductId().startsWith("WG")) {
                 // Check for CyclePlusTracker
-                if (data.hasIdenticalLastCoordinates() && product.getAirplaneMode().toUpperCase().equals("ON")) {
+                if (!data.hasIdenticalLastCoordinates() ){
+                    responseDTO.setStatus(Constant.FLAG_NA);
+                } else if ( product.getAirplaneMode().toUpperCase().equals("ON")) {
                     responseDTO.setDescription("SUCCESS: Location not available: Please turn off airplane mode.");
                     responseDTO.setStatus(Constant.FLAG_INACTIVE);
                 } else {
@@ -169,35 +172,6 @@ public class ProductDetailsRepositoryImpl implements ProductDetailsRepository {
             }
 
         }
-
-
-/**
- * Old logic
- */
-//        if (product.getAirplaneMode().toUpperCase().equals("OFF")) {
-//            //	If the AirplaneMode is off and there is no GPS data available in the csv file the status should be 400:BAD_REQUEST
-//            Optional.of(product.getLongitude())
-//                    .filter(Predicate.not((String::isBlank)))
-//                    .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
-//            Optional.of(product.getLatitude())
-//                    .filter(Predicate.not((String::isBlank)))
-//                    .orElseThrow(() -> new DeviceNotFoundException("ERROR: Device could not be located)"));
-//
-//            responseDTO.setLongi(product.getLongitude());
-//            responseDTO.setLat(product.getLatitude());
-//            responseDTO.setDescription("SUCCESS: Location identified.");
-//            responseDTO.setStatus(Constant.FLAG_ACTIVE);
-//
-//        } else {
-//            responseDTO.setDescription("SUCCESS: Location not available: Please turn off airplane mode.");
-//            responseDTO.setStatus(Constant.FLAG_INACTIVE);
-//        }
-//
-
-
-
-
-
         return responseDTO;
     }
 
