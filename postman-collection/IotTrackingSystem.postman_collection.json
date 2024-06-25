@@ -5,5 +5,63 @@
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28860459"
 	},
-	"item": []
+	"item": [
+		{
+			"name": "http://localhost:8081/iot/event/v1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"filepath\": \"D:/iot-tracking-system/src/main/resources/data.csv\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/iot/event/v1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"iot",
+						"event",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/iot/event/v1?productId=WG11155638&tstmp=1582605077000",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/iot/event/v1?productId=WG11155638&tstmp=1582605077000",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"iot",
+						"event",
+						"v1"
+					],
+					"query": [
+						{
+							"key": "productId",
+							"value": "WG11155638"
+						},
+						{
+							"key": "tstmp",
+							"value": "1582605077000"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
 }
