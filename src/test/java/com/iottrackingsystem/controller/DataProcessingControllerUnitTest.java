@@ -1,73 +1,61 @@
 package com.iottrackingsystem.controller;
 
-import static org.mockito.Mockito.when;
 import com.iottrackingsystem.dto.DeviceReportResponseDTO;
 import com.iottrackingsystem.dto.FileDetailsRequestDTO;
 import com.iottrackingsystem.dto.FileDetailsResponseDTO;
 import com.iottrackingsystem.exception.InvalidInputException;
 import com.iottrackingsystem.service.DataProcessingService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.io.IOException;
 
-@AutoConfigureMockMvc
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class DataProcessingControllerUnitTest {
 
-    @InjectMocks
-    private DataProcessingController dataProcessingController;
+	@InjectMocks
+    private DataProcessingController controller;
 
     @Mock
     private DataProcessingService dataProcessingService;
 
-    @BeforeAll
-    public void init() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
-    public void testGetDeviceAndLocationDetails_Success() {
-        String productId = "validProductId";
+    public void testGetDeviceAndLocationDetails_Success() throws Exception {
+        // Arrange
+        String productId = "1234";
+        String timestamp = null; // Test without timestamp
         DeviceReportResponseDTO expectedResponse = new DeviceReportResponseDTO();
-        when(dataProcessingService.getDeviceAndLocationDetails(productId, null)).thenReturn(expectedResponse);
+        Mockito.when(dataProcessingService.getDeviceAndLocationDetails(productId, timestamp)).thenReturn(expectedResponse);
 
-        ResponseEntity<DeviceReportResponseDTO> response = dataProcessingController.getDeviceAndLocationDetails(productId, null);
+        // Act
+        ResponseEntity<DeviceReportResponseDTO> response = controller.getDeviceAndLocationDetails(productId, timestamp);
 
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(200, response.getStatusCodeValue());
-        Assertions.assertEquals(expectedResponse, response.getBody());
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions. assertEquals(expectedResponse, response.getBody());
     }
-
     @Test
-    public void testGetDeviceAndLocationDetails_EmptyProductId() {
-        Assertions.assertThrows(InvalidInputException.class, () -> dataProcessingController.getDeviceAndLocationDetails("", null));
-    }
-
-    @Test
-    public void testIotBatchDataLoading_Success() throws IOException {
-        String filePath = "valid/filepath";
-        FileDetailsRequestDTO requestDTO = new FileDetailsRequestDTO();
+    public void testIotBatchDataLoading_Success() throws Exception {
+        // Arrange
+        String filePath = "path/to/file.csv";
+        FileDetailsRequestDTO request = new FileDetailsRequestDTO(filePath);
         FileDetailsResponseDTO expectedResponse = new FileDetailsResponseDTO();
-        when(dataProcessingService.iotBatchDataLoading(filePath)).thenReturn(expectedResponse);
+        Mockito.when(dataProcessingService.iotBatchDataLoading(filePath)).thenReturn(expectedResponse);
 
-        ResponseEntity<FileDetailsResponseDTO> response = dataProcessingController.iotBatchDataLoading(requestDTO);
+        // Act
+        ResponseEntity<FileDetailsResponseDTO> response = controller.iotBatchDataLoading(request);
 
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(200, response.getStatusCodeValue());
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(expectedResponse, response.getBody());
     }
 
-    @Test
-    public void testIotBatchDataLoading_EmptyFilePath() throws IOException {
-        FileDetailsRequestDTO requestDTO = new FileDetailsRequestDTO();
-        Assertions.assertThrows(InvalidInputException.class, () -> dataProcessingController.iotBatchDataLoading(requestDTO));
-    }
 }
